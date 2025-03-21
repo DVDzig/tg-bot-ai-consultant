@@ -27,8 +27,16 @@ from bot_utils import register_handlers
 # --- 3. Логирование ---
 logging.basicConfig(level=logging.INFO)
 
-# --- 4. Основной запуск бота ---
+# --- 4. Основной запуск бота и Webhook ---
+from aiohttp import web
+from aiogram import types
+
+# Глобально объявляем переменные
+bot = None
+dp = None
+
 async def main():
+    global bot, dp
     bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode="HTML"))
     dp = Dispatcher()
 
@@ -40,7 +48,36 @@ async def main():
     ], scope=BotCommandScopeDefault())
 
     logging.info("Бот запущен!")
-    await dp.start_polling(bot)
+
+    # --- Установка Webhook ---
+    RENDER_HOSTNAME = os.getenv('RENDER_EXTERNAL_HOSTNAME')
+    WEBHOOK_PATH = f"/webhook/{TOKEN}"
+    WEBHOOK_URL = f"https://{RENDER_HOSTNAME}{WEBHOOK_PATH}"
+
+    await bot.set_webhook(WEBHOOK_URL)
+    print(f"✅ Webhook установлен: {WEBHOOK_URL}")
+
+    # --- Запуск сервера ---
+    app = web.Application()
+    
+    async def webhook_handler(request):
+        update = types.Update(**await request.json())
+        await dp.feed_update(bot, update)
+        return web.Response()
+
+    app.router.add_post(WEBHOOK_PATH, webhook_handler)
+
+    port = int(os.environ.get('PORT', 8000))
+    print(f"🌐 Запуск сервера на порту {port}")
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, "0.0.0.0", port)
+    await site.start()
+
+    # Ожидаем завершения
+    while True:
+        await asyncio.sleep(3600)
+
 
 if __name__ == "__main__":
     asyncio.run(main())
