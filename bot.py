@@ -15,7 +15,7 @@ from googleapiclient.http import MediaFileUpload
 from google.oauth2.service_account import Credentials
 from datetime import datetime, timedelta
 from openai import AsyncOpenAI
-from sheets_utils import get_plan_data, get_user_data, update_user_sheet
+from google_sheets_utils import get_plan_data, get_user_data, update_user_sheet
 
 
 # Логирование
