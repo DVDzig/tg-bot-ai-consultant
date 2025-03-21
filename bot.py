@@ -78,7 +78,7 @@ menu_keyboard = ReplyKeyboardMarkup(
     keyboard=[
         [KeyboardButton(text=f"📚 Выбери дисциплину")],
         [KeyboardButton(text=f"👤 Личный кабинет")], [KeyboardButton(text=f"🏆 Лидерборд")],
-        [KeyboardButton("💳 Купить вопросы")]
+        [KeyboardButton(text=f"💳 Купить вопросы")]
     ],
     resize_keyboard=True
 )
@@ -175,10 +175,10 @@ DISCIPLINE_PROMPTS = generate_discipline_prompts(df_structured)
 async def show_question_packages(message: types.Message):
     keyboard = ReplyKeyboardMarkup(
         keyboard=[
-            [KeyboardButton("📦 10 вопросов — 50₽")],
-            [KeyboardButton("📦 20 вопросов — 90₽")],
-            [KeyboardButton("📦 50 вопросов — 200₽")],
-            [KeyboardButton("🔙 Назад в главное меню")]
+            [KeyboardButton(text=f"📦 10 вопросов — 50₽")],
+            [KeyboardButton(text=f"📦 20 вопросов — 90₽")],
+            [KeyboardButton(text=f"📦 50 вопросов — 200₽")],
+            [KeyboardButton(text=f"🔙 Назад в главное меню")]
         ],
         resize_keyboard=True
     )
@@ -560,8 +560,8 @@ def materials_keyboard():
 
 ai_interaction_keyboard = ReplyKeyboardMarkup(
     keyboard=[
-        [KeyboardButton(text="🧩 Продолжить вопрос"), KeyboardButton(text="🧹 Новый вопрос")],
-        [KeyboardButton(text="🔙 Назад в главное меню")]
+        [KeyboardButton(text=f"🧩 Продолжить вопрос"), KeyboardButton(text=f"🧹 Новый вопрос")],
+        [KeyboardButton(text=f"🔙 Назад в главное меню")]
     ],
     resize_keyboard=True
 )
@@ -569,7 +569,7 @@ ai_interaction_keyboard = ReplyKeyboardMarkup(
 def profile_keyboard():
     return ReplyKeyboardMarkup(
         keyboard=[
-            [KeyboardButton(text="🔙 Назад в главное меню")],
+            [KeyboardButton(text=f"🔙 Назад в главное меню")],
         ],
         resize_keyboard=True
     )
