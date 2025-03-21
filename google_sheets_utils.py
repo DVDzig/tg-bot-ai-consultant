@@ -7,20 +7,30 @@ import os
 from datetime import datetime
 from config_utils import SHEET_ID, USER_SHEET_ID, LOGS_FOLDER_ID
 import json
+import base64
 
 # --- Подключение к Google API ---
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
 
-# Получаем JSON из переменной окружения
-google_credentials_json = os.getenv("GOOGLE_CREDENTIALS_JSON")
-if not google_credentials_json:
+encoded = os.getenv("GOOGLE_CREDENTIALS_JSON")
+if not encoded:
     print("⚠️ Переменная окружения GOOGLE_CREDENTIALS_JSON не найдена.")
+    exit(1)
+
+try:
+    decoded_bytes = base64.b64decode(encoded)
+    creds_dict = json.loads(decoded_bytes)
+    creds = Credentials.from_service_account_info(creds_dict, scopes=SCOPES)
+    print("✅ credentials успешно загружены из переменной окружения.")
+except Exception as e:
+    print(f"❌ Ошибка обработки переменной GOOGLE_CREDENTIALS_JSON: {e}")
     exit(1)
 
 # Преобразуем строку в словарь
 try:
     creds_dict = json.loads(google_credentials_json)
     creds = Credentials.from_service_account_info(creds_dict, scopes=SCOPES)
+    print("✅ credentials успешно загружены из переменной окружения.")
 except Exception as e:
     print(f"❌ Ошибка обработки переменной GOOGLE_CREDENTIALS_JSON: {e}")
     exit(1)
