@@ -8,6 +8,7 @@ from aiogram.types import BotCommand, BotCommandScopeDefault
 from aiogram.client.default import DefaultBotProperties
 from config_utils import TOKEN
 from bot_utils import register_handlers
+from aiohttp import web
 
 # --- 1. Создание credentials.json из переменной окружения ---
 creds_str = os.getenv("GOOGLE_CREDENTIALS_JSON")
@@ -37,14 +38,16 @@ async def main():
         BotCommand(command="start", description="Запустить бота"),
         BotCommand(command="help", description="Помощь")
     ], scope=BotCommandScopeDefault())
+    
+    logging.info("Бот запущен и слушает Webhook...")
 
     # Настройка Webhook
-    RENDER_HOST = os.getenv("RENDER_EXTERNAL_HOSTNAME")
-    if not RENDER_HOST:
+    hostname = os.getenv("RENDER_EXTERNAL_HOSTNAME")
+    if not hostname:
         logging.error("❌ RENDER_EXTERNAL_HOSTNAME не задан")
         return
     WEBHOOK_PATH = f"/webhook/{TOKEN}"
-    WEBHOOK_URL = f"https://{RENDER_HOST}{WEBHOOK_PATH}"
+    WEBHOOK_URL = f"https://{hostname}{WEBHOOK_PATH}"
 
     await bot.set_webhook(WEBHOOK_URL)
     print(f"✅ Webhook установлен: {WEBHOOK_URL}")
@@ -61,12 +64,7 @@ async def main():
 
     port = int(os.environ.get('PORT', 8000))
     print(f"🌐 Запуск сервера на порту {port}")
-    runner = web.AppRunner(app)
-    await runner.setup()
-    site = web.TCPSite(runner, port=port)
-    await site.start()
-
-    logging.info("Бот запущен и слушает Webhook...")
+    web.run_app(app, port=port)
 
     # Поддержка работы сервера
     while True:
