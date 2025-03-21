@@ -9,21 +9,22 @@ from aiogram.client.default import DefaultBotProperties
 from config_utils import TOKEN
 from bot_utils import register_handlers
 from aiohttp import web
+import base64
 
 # --- 1. Создание credentials.json из переменной окружения ---
-creds_str = os.getenv("GOOGLE_CREDENTIALS_JSON")
+creds_base64 = os.getenv("GOOGLE_CREDENTIALS_JSON")
 
-if creds_str:
+if creds_base64:
     try:
-        creds_dict = json.loads(creds_str)
+        decoded = base64.b64decode(creds_base64).decode("utf-8")
         with open("credentials.json", "w") as f:
-            json.dump(creds_dict, f)
-        print("✅ credentials.json успешно создан из переменной окружения.")
+            f.write(decoded)
+        print("✅ credentials.json успешно создан из base64.")
     except Exception as e:
         print(f"❌ Ошибка при создании credentials.json: {e}")
 else:
     print("⚠️ Переменная окружения GOOGLE_CREDENTIALS_JSON не найдена.")
-
+    
 # --- 2. Логирование ---
 logging.basicConfig(level=logging.INFO)
 
@@ -72,4 +73,6 @@ async def main():
 
 
 if __name__ == "__main__":
+    import nest_asyncio
+    nest_asyncio.apply()
     asyncio.run(main())

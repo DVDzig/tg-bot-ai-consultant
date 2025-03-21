@@ -1,11 +1,21 @@
 from openai import AsyncOpenAI
 import openai
 import os
+import base64
 
 # Сохраняем credentials.json из переменной окружения
-if os.getenv("GOOGLE_CREDS_JSON"):
-    with open("credentials.json", "w") as f:
-        f.write(os.getenv("GOOGLE_CREDS_JSON"))
+creds_base64 = os.getenv("GOOGLE_CREDENTIALS_JSON")
+
+if creds_base64:
+    try:
+        decoded = base64.b64decode(creds_base64).decode("utf-8")
+        with open("credentials.json", "w") as f:
+            f.write(decoded)
+        print("✅ credentials.json успешно создан из base64.")
+    except Exception as e:
+        print(f"❌ Ошибка при создании credentials.json: {e}")
+else:
+    print("⚠️ Переменная окружения GOOGLE_CREDENTIALS_JSON не найдена.")
 
 
 # --- Константы ---

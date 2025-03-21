@@ -37,10 +37,6 @@ except Exception as e:
     print(f"❌ Ошибка авторизации: {e}")
     exit(1)
 
-with open("credentials.json", "w") as f:
-    f.write(decoded)
-
-
 # Таблица с планом дисциплин
 sheet = client.open_by_key(SHEET_ID).worksheet("План")
 
