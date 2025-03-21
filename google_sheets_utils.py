@@ -6,6 +6,7 @@ import logging
 import os
 from datetime import datetime
 from config_utils import CREDENTIALS_FILE, SHEET_ID, USER_SHEET_ID
+import base64
 
 # --- Константы ---
 CREDENTIALS_FILE = "credentials.json"
@@ -15,7 +16,19 @@ LOGS_FOLDER_ID = "1BAJrLKRDleaBkMomaI1c4iYYVEclk-Ab"
 
 # --- Подключение к Google API ---
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
-creds = Credentials.from_service_account_file(CREDENTIALS_FILE, scopes=SCOPES)
+
+# Расшифровка credentials.json из переменной
+encoded = os.getenv("GOOGLE_CREDENTIALS_JSON")
+if not encoded:
+    print("⚠️ Переменная окружения GOOGLE_CREDENTIALS_JSON не найдена.")
+    exit(1)
+
+with open("credentials.json", "wb") as f:
+    f.write(base64.b64decode(encoded))
+
+# Используем расшифрованный файл
+creds = Credentials.from_service_account_file("credentials.json", scopes=SCOPES)
+
 client = gspread.authorize(creds)
 drive_service = build("drive", "v3", credentials=creds)
 
