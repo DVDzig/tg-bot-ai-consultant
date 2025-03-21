@@ -20,6 +20,11 @@ if not encoded:
 try:
     decoded_bytes = base64.b64decode(encoded)
     creds_dict = json.loads(decoded_bytes)
+    
+    # Правильная обработка \n в ключе
+    if "private_key" in creds_dict:
+        creds_dict["private_key"] = creds_dict["private_key"].replace("\\n", "\n")
+
     creds = Credentials.from_service_account_info(creds_dict, scopes=SCOPES)
     print("✅ credentials успешно загружены из переменной окружения.")
 except Exception as e:
