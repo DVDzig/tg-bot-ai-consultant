@@ -77,7 +77,7 @@ cached_user_data = []  # Кэш пользовательских данных
 menu_keyboard = ReplyKeyboardMarkup(
     keyboard=[
         [KeyboardButton(text=f"📚 Выбери дисциплину")],
-        [KeyboardButton(text=f"👤 Личный кабинет")], [KeyboardButton(text=f"🏆 Лидерборд")]
+        [KeyboardButton(text=f"👤 Личный кабинет")], [KeyboardButton(text=f"🏆 Лидерборд")],
         [KeyboardButton("💳 Купить вопросы")]
     ],
     resize_keyboard=True
