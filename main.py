@@ -2,11 +2,14 @@ import os
 import json
 import asyncio
 import logging
-from aiogram import Bot, Dispatcher
+from aiohttp import web
+from aiogram import Bot, Dispatcher, types
 from aiogram.types import BotCommand, BotCommandScopeDefault
 from aiogram.client.default import DefaultBotProperties
+from config_utils import TOKEN
+from bot_utils import register_handlers
 
-# --- 1. Создание credentials.json на Render ---
+# --- 1. Создание credentials.json из переменной окружения ---
 creds_str = os.getenv("GOOGLE_CREDENTIALS_JSON")
 
 if creds_str:
@@ -20,61 +23,52 @@ if creds_str:
 else:
     print("⚠️ Переменная окружения GOOGLE_CREDENTIALS_JSON не найдена.")
 
-# --- 2. Подключение констант и хендлеров ---
-from config_utils import TOKEN
-from bot_utils import register_handlers
-
-# --- 3. Логирование ---
+# --- 2. Логирование ---
 logging.basicConfig(level=logging.INFO)
 
-# --- 4. Основной запуск бота и Webhook ---
-from aiohttp import web
-from aiogram import types
-
-# Глобально объявляем переменные
-bot = None
-dp = None
-
+# --- 3. Основной запуск бота и сервера Webhook ---
 async def main():
-    global bot, dp
     bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode="HTML"))
     dp = Dispatcher()
-
     register_handlers(dp)
 
+    # Установка команд
     await bot.set_my_commands([
         BotCommand(command="start", description="Запустить бота"),
         BotCommand(command="help", description="Помощь")
     ], scope=BotCommandScopeDefault())
 
-    logging.info("Бот запущен!")
-
-    # --- Установка Webhook ---
-    RENDER_HOSTNAME = os.getenv('RENDER_EXTERNAL_HOSTNAME')
+    # Настройка Webhook
+    RENDER_HOST = os.getenv("RENDER_EXTERNAL_HOSTNAME")
+    if not RENDER_HOST:
+        logging.error("❌ RENDER_EXTERNAL_HOSTNAME не задан")
+        return
     WEBHOOK_PATH = f"/webhook/{TOKEN}"
-    WEBHOOK_URL = f"https://{RENDER_HOSTNAME}{WEBHOOK_PATH}"
+    WEBHOOK_URL = f"https://{RENDER_HOST}{WEBHOOK_PATH}"
 
     await bot.set_webhook(WEBHOOK_URL)
     print(f"✅ Webhook установлен: {WEBHOOK_URL}")
 
-    # --- Запуск сервера ---
-    app = web.Application()
-    
+    # Обработчик Webhook
     async def webhook_handler(request):
         update = types.Update(**await request.json())
         await dp.feed_update(bot, update)
         return web.Response()
 
+    # Запуск aiohttp сервера
+    app = web.Application()
     app.router.add_post(WEBHOOK_PATH, webhook_handler)
 
     port = int(os.environ.get('PORT', 8000))
     print(f"🌐 Запуск сервера на порту {port}")
     runner = web.AppRunner(app)
     await runner.setup()
-    site = web.TCPSite(runner, "0.0.0.0", port)
+    site = web.TCPSite(runner, port=port)
     await site.start()
 
-    # Ожидаем завершения
+    logging.info("Бот запущен и слушает Webhook...")
+
+    # Поддержка работы сервера
     while True:
         await asyncio.sleep(3600)
 
