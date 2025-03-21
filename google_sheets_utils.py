@@ -5,14 +5,8 @@ from googleapiclient.http import MediaFileUpload
 import logging
 import os
 from datetime import datetime
-from config_utils import CREDENTIALS_FILE, SHEET_ID, USER_SHEET_ID
-import base64
+from config_utils import SHEET_ID, USER_SHEET_ID, LOGS_FOLDER_ID
 import json
-
-# --- Константы ---
-SHEET_ID = "1vwRZKDUWOAgjCmHd5Cea2lrGraCULkrW9G8BUlJzI0Q"
-USER_SHEET_ID = "1Ialmy0K2HfIWQFYjYZP6bBFuRBoK_aHXDX6BZSPPM7k"
-LOGS_FOLDER_ID = "1BAJrLKRDleaBkMomaI1c4iYYVEclk-Ab"
 
 # --- Подключение к Google API ---
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
@@ -24,14 +18,14 @@ if not google_credentials_json:
     exit(1)
 
 # Преобразуем строку в словарь
-creds_dict = json.loads(google_credentials_json)
+try:
+    creds_dict = json.loads(google_credentials_json)
+    creds = Credentials.from_service_account_info(creds_dict, scopes=SCOPES)
+except Exception as e:
+    print(f"❌ Ошибка обработки переменной GOOGLE_CREDENTIALS_JSON: {e}")
+    exit(1)
 
 # Авторизация
-creds = Credentials.from_service_account_info(creds_dict, scopes=SCOPES)
-
-# Используем расшифрованный файл
-creds = Credentials.from_service_account_file("credentials.json", scopes=SCOPES)
-
 client = gspread.authorize(creds)
 drive_service = build("drive", "v3", credentials=creds)
 
