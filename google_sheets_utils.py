@@ -31,15 +31,6 @@ except Exception as e:
     print(f"❌ Ошибка обработки переменной GOOGLE_CREDENTIALS_JSON: {e}")
     exit(1)
 
-# Преобразуем строку в словарь
-try:
-    creds_dict = json.loads(google_credentials_json)
-    creds = Credentials.from_service_account_info(creds_dict, scopes=SCOPES)
-    print("✅ credentials успешно загружены из переменной окружения.")
-except Exception as e:
-    print(f"❌ Ошибка обработки переменной GOOGLE_CREDENTIALS_JSON: {e}")
-    exit(1)
-
 # Авторизация
 client = gspread.authorize(creds)
 drive_service = build("drive", "v3", credentials=creds)
