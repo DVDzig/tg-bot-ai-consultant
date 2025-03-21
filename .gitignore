@@ -1,4 +1,5 @@
+# Не загружать эти файлы в репозиторий
 __pycache__/
-*.log
-.env
+*.pyc
 credentials.json
+.env
