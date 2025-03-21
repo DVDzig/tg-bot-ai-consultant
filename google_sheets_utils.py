@@ -6,34 +6,37 @@ import logging
 import os
 from datetime import datetime
 from config_utils import SHEET_ID, USER_SHEET_ID, LOGS_FOLDER_ID
-import json
 import base64
 
 # --- Подключение к Google API ---
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
 
+# --- Переменная окружения ---
 encoded = os.getenv("GOOGLE_CREDENTIALS_JSON")
+
 if not encoded:
-    print("⚠️ Переменная окружения GOOGLE_CREDENTIALS_JSON не найдена.")
+    print("❌ GOOGLE_CREDENTIALS_JSON не найдена.")
     exit(1)
 
 try:
-    decoded_bytes = base64.b64decode(encoded)
-    creds_dict = json.loads(decoded_bytes)
-    
-    # Правильная обработка \n в ключе
-    if "private_key" in creds_dict:
-        creds_dict["private_key"] = creds_dict["private_key"].replace("\\n", "\n")
-
-    creds = Credentials.from_service_account_info(creds_dict, scopes=SCOPES)
-    print("✅ credentials успешно загружены из переменной окружения.")
+    # Расшифровка и создание credentials.json
+    decoded = base64.b64decode(encoded).decode("utf-8")
+    with open("credentials.json", "w") as f:
+        f.write(decoded)
+    print("✅ credentials.json успешно создан.")
 except Exception as e:
-    print(f"❌ Ошибка обработки переменной GOOGLE_CREDENTIALS_JSON: {e}")
-    exit(1)
+    print(f"❌ Ошибка при создании credentials.json: {e}")
 
 # Авторизация
-client = gspread.authorize(creds)
-drive_service = build("drive", "v3", credentials=creds)
+try:
+    creds = Credentials.from_service_account_file("credentials.json", scopes=SCOPES)
+    client = gspread.authorize(creds)
+    drive_service = build("drive", "v3", credentials=creds)
+    print("✅ Авторизация прошла успешно.")
+except Exception as e:
+    print(f"❌ Ошибка авторизации: {e}")
+    exit(1)
+
 
 # Таблица с планом дисциплин
 sheet = client.open_by_key(SHEET_ID).worksheet("План")
