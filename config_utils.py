@@ -1,17 +1,24 @@
 from openai import AsyncOpenAI
 import openai
+import os
+
+# Сохраняем credentials.json из переменной окружения
+if os.getenv("GOOGLE_CREDS_JSON"):
+    with open("credentials.json", "w") as f:
+        f.write(os.getenv("GOOGLE_CREDS_JSON"))
+
 
 # --- Константы ---
-TOKEN = "7136074525:AAFECZhYb27cppiFWvjNdnshAZ2KvoIPVyo"
-OPENAI_API_KEY = "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"
+TOKEN = os.getenv("BOT_TOKEN")
+OPENAI_API_KEY = os.getenv("OPENAI_KEY")
 
 openai_client = AsyncOpenAI(api_key=OPENAI_API_KEY)
 openai.api_key = OPENAI_API_KEY
 
 CREDENTIALS_FILE = "credentials.json"
-SHEET_ID = "1vwRZKDUWOAgjCmHd5Cea2lrGraCULkrW9G8BUlJzI0Q"
-USER_SHEET_ID = "1Ialmy0K2HfIWQFYjYZP6bBFuRBoK_aHXDX6BZSPPM7k"
-LOGS_FOLDER_ID = "1BAJrLKRDleaBkMomaI1c4iYYVEclk-Ab"
+SHEET_ID = os.getenv("SHEET_ID")
+USER_SHEET_ID = os.getenv("USER_SHEET_ID")
+LOGS_FOLDER_ID = os.getenv("LOGS_FOLDER_ID")
 ADMIN_IDS = ["150532949"]  # Подставь твой Telegram user_id
 
 FREE_QUESTION_LIMITS = {
