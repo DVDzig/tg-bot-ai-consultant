@@ -7,9 +7,9 @@ import os
 from datetime import datetime
 from config_utils import CREDENTIALS_FILE, SHEET_ID, USER_SHEET_ID
 import base64
+import json
 
 # --- Константы ---
-CREDENTIALS_FILE = "credentials.json"
 SHEET_ID = "1vwRZKDUWOAgjCmHd5Cea2lrGraCULkrW9G8BUlJzI0Q"
 USER_SHEET_ID = "1Ialmy0K2HfIWQFYjYZP6bBFuRBoK_aHXDX6BZSPPM7k"
 LOGS_FOLDER_ID = "1BAJrLKRDleaBkMomaI1c4iYYVEclk-Ab"
@@ -17,14 +17,17 @@ LOGS_FOLDER_ID = "1BAJrLKRDleaBkMomaI1c4iYYVEclk-Ab"
 # --- Подключение к Google API ---
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
 
-# Расшифровка credentials.json из переменной
-encoded = os.getenv("GOOGLE_CREDENTIALS_JSON")
-if not encoded:
+# Получаем JSON из переменной окружения
+google_credentials_json = os.getenv("GOOGLE_CREDENTIALS_JSON")
+if not google_credentials_json:
     print("⚠️ Переменная окружения GOOGLE_CREDENTIALS_JSON не найдена.")
     exit(1)
 
-with open("credentials.json", "wb") as f:
-    f.write(base64.b64decode(encoded))
+# Преобразуем строку в словарь
+creds_dict = json.loads(google_credentials_json)
+
+# Авторизация
+creds = Credentials.from_service_account_info(creds_dict, scopes=SCOPES)
 
 # Используем расшифрованный файл
 creds = Credentials.from_service_account_file("credentials.json", scopes=SCOPES)
