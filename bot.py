@@ -22,8 +22,8 @@ from sheets_utils import get_plan_data, get_user_data, update_user_sheet
 logging.basicConfig(level=logging.INFO)
 
 # --- Константы ---
-TOKEN = "7136074525:AAFECZhYb27cppiFWvjNdnshAZ2KvoIPVyo"
-OPENAI_API_KEY = "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"
+TOKEN = os.getenv("BOT_TOKEN")
+OPENAI_API_KEY = os.getenv("OPENAI_KEY")
 openai_client = AsyncOpenAI(api_key=OPENAI_API_KEY)
 openai.api_key = OPENAI_API_KEY
 
